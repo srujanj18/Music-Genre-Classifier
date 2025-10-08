@@ -1,0 +1,5 @@
+- [x] Initialize Git repository
+- [x] Add remote origin to GitHub repo
+- [ ] Add all files to staging area
+- [ ] Commit the changes with message "Initial commit"
+- [ ] Push to GitHub main branch

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Music Genre Classifier</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        width: 100%;
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      input[type="file"] {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        padding: 12px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+      #result {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 4px;
+        display: none;
+      }
+      #result.success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+      }
+      #result.error {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+      }
+      #genre {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      #probs {
+        margin-top: 10px;
+      }
+      .prob-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+      }
+      .prob-bar {
+        background: #e9ecef;
+        border-radius: 4px;
+        height: 20px;
+        margin-left: 10px;
+        flex: 1;
+        position: relative;
+      }
+      .prob-fill {
+        background: #007bff;
+        height: 100%;
+        border-radius: 4px;
+      }
+      #loading {
+        display: none;
+        text-align: center;
+        margin-top: 20px;
+      }
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #007bff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Music Genre Classifier</h1>
+      <form id="uform" enctype="multipart/form-data">
+        <input type="file" name="file" accept="audio/*" required />
+        <button type="submit" id="submit-btn">Predict Genre</button>
+      </form>
+      <div id="loading">
+        <div class="spinner"></div>
+        Analyzing audio...
+      </div>
+      <div id="result"></div>
+    </div>
+    <script>
+      const genres = [
+        "blues",
+        "classical",
+        "country",
+        "disco",
+        "hiphop",
+        "jazz",
+        "metal",
+        "pop",
+        "reggae",
+        "rock",
+      ];
+      const f = document.getElementById("uform");
+      const submitBtn = document.getElementById("submit-btn");
+      const loading = document.getElementById("loading");
+      const resultDiv = document.getElementById("result");
+
+      f.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const data = new FormData(f);
+        submitBtn.disabled = true;
+        loading.style.display = "block";
+        resultDiv.style.display = "none";
+        try {
+          const res = await fetch("/predict", { method: "POST", body: data });
+          const json = await res.json();
+          if (res.ok) {
+            displayResult(json);
+          } else {
+            displayError(json.error || "An error occurred");
+          }
+        } catch (err) {
+          displayError("Network error");
+        } finally {
+          submitBtn.disabled = false;
+          loading.style.display = "none";
+        }
+      });
+
+      function displayResult(data) {
+        resultDiv.className = "success";
+        resultDiv.style.display = "block";
+        let html = `<div id="genre">Predicted Genre: ${data.genre}</div>`;
+        if (data.probs) {
+          html += '<div id="probs"><strong>Probabilities:</strong><br>';
+          data.probs.forEach((prob, idx) => {
+            const percentage = (prob * 100).toFixed(1);
+            const genreName = genres[idx] || `Genre ${idx + 1}`;
+            html += `<div class="prob-item">${genreName}: ${percentage}%<div class="prob-bar"><div class="prob-fill" style="width: ${percentage}%"></div></div></div>`;
+          });
+          html += "</div>";
+        }
+        resultDiv.innerHTML = html;
+      }
+
+      function displayError(msg) {
+        resultDiv.className = "error";
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = `<strong>Error:</strong> ${msg}`;
+      }
+    </script>
+  </body>
+</html>
