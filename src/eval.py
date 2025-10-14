@@ -1,8 +1,8 @@
 import os, torch, numpy as np
 from sklearn.metrics import classification_report, confusion_matrix
-from dataset import MelSpecDataset
-from model import SimpleCNN
-from config import GENRES
+from .dataset import MelSpecDataset
+from .model import SimpleCNN
+from .config import GENRES
 
 def evaluate(data_dir, model_path='best_model.pth'):
     ds = MelSpecDataset(data_dir, GENRES)

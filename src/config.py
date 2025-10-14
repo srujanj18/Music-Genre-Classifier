@@ -1,6 +1,6 @@
 import os
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-DATA_DIR = os.path.join(BASE_DIR, '..', 'data')
+DATA_DIR = os.path.join(BASE_DIR, 'Data')
 GTZAN_DIR = os.path.join(DATA_DIR, 'gtzan')
 SPECTRO_DIR = os.path.join(DATA_DIR, 'spectrograms')
 SAMPLE_RATE = 22050
