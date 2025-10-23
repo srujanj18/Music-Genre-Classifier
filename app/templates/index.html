@@ -4,111 +4,230 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Music Genre Classifier</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      * {
+        box-sizing: border-box;
+      }
       body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
+        font-family: "Orbitron", sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0c0c0c 0%,
+          #1a1a2e 50%,
+          #16213e 100%
+        );
         margin: 0;
         padding: 20px;
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
+        color: #e0e0e0;
+        overflow-x: hidden;
       }
       .container {
-        background: white;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        max-width: 600px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        max-width: 700px;
         width: 100%;
+        position: relative;
+        animation: fadeIn 1s ease-in-out;
+      }
+      .container::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #00d4ff, #090979, #ff6b6b, #4ecdc4);
+        border-radius: 22px;
+        z-index: -1;
+        opacity: 0.7;
+        animation: glow 2s ease-in-out infinite alternate;
       }
       h1 {
         text-align: center;
-        color: #333;
-        margin-bottom: 20px;
+        color: #00d4ff;
+        margin-bottom: 30px;
+        font-size: 2.5rem;
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        animation: textGlow 2s ease-in-out infinite alternate;
       }
       form {
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 20px;
       }
-      input[type="file"] {
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+      .file-upload {
+        position: relative;
+        border: 2px dashed rgba(0, 212, 255, 0.5);
+        border-radius: 10px;
+        padding: 40px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .file-upload:hover,
+      .file-upload.dragover {
+        border-color: #00d4ff;
+        background: rgba(0, 212, 255, 0.1);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+      }
+      .file-upload input[type="file"] {
+        position: absolute;
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+      }
+      .file-upload-label {
+        color: #e0e0e0;
+        font-size: 1.1rem;
+        pointer-events: none;
       }
       button {
-        padding: 12px;
-        background-color: #007bff;
+        padding: 15px 30px;
+        background: linear-gradient(45deg, #00d4ff, #090979);
         color: white;
         border: none;
-        border-radius: 4px;
+        border-radius: 10px;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 1.1rem;
+        font-family: "Orbitron", sans-serif;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+      button:hover::before {
+        left: 100%;
       }
       button:hover {
-        background-color: #0056b3;
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        transform: translateY(-2px);
       }
       button:disabled {
-        background-color: #ccc;
+        background: #333;
         cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
       }
       #result {
-        margin-top: 20px;
-        padding: 15px;
-        border-radius: 4px;
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 10px;
         display: none;
+        animation: slideIn 0.5s ease-out;
       }
       #result.success {
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
+        background: rgba(76, 175, 80, 0.1);
+        border: 1px solid rgba(76, 175, 80, 0.3);
+        color: #81c784;
       }
       #result.error {
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
+        background: rgba(244, 67, 54, 0.1);
+        border: 1px solid rgba(244, 67, 54, 0.3);
+        color: #ef5350;
       }
       #genre {
-        font-size: 24px;
+        font-size: 2rem;
         font-weight: bold;
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        text-align: center;
+        color: #00d4ff;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
       }
       #probs {
-        margin-top: 10px;
+        margin-top: 15px;
       }
       .prob-item {
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 5px;
+        align-items: center;
+        margin-bottom: 10px;
+        padding: 5px 0;
+      }
+      .prob-label {
+        width: 120px;
+        font-size: 0.9rem;
+        color: #e0e0e0;
       }
       .prob-bar {
-        background: #e9ecef;
-        border-radius: 4px;
-        height: 20px;
-        margin-left: 10px;
         flex: 1;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        height: 25px;
+        margin-left: 15px;
         position: relative;
+        overflow: hidden;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
       }
       .prob-fill {
-        background: #007bff;
+        background: linear-gradient(90deg, #00d4ff, #090979);
         height: 100%;
-        border-radius: 4px;
+        border-radius: 20px;
+        transition: width 1s ease-out;
+        position: relative;
+      }
+      .prob-fill::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        animation: shimmer 2s infinite;
+      }
+      .prob-value {
+        margin-left: 15px;
+        font-size: 0.9rem;
+        color: #00d4ff;
+        width: 50px;
+        text-align: right;
       }
       #loading {
         display: none;
         text-align: center;
-        margin-top: 20px;
+        margin-top: 30px;
       }
       .spinner {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #007bff;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-top: 4px solid #00d4ff;
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto 10px;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite, pulse 1.5s ease-in-out infinite;
+        margin: 0 auto 15px;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
       }
       @keyframes spin {
         0% {
@@ -118,13 +237,91 @@
           transform: rotate(360deg);
         }
       }
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        50% {
+          box-shadow: 0 0 40px rgba(0, 212, 255, 0.8);
+        }
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes glow {
+        from {
+          opacity: 0.7;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes textGlow {
+        from {
+          text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        to {
+          text-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
+        }
+      }
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+      @media (max-width: 768px) {
+        .container {
+          padding: 20px;
+          margin: 10px;
+        }
+        h1 {
+          font-size: 2rem;
+        }
+        .file-upload {
+          padding: 30px 15px;
+        }
+        .prob-label {
+          width: 80px;
+          font-size: 0.8rem;
+        }
+        .prob-value {
+          width: 40px;
+          font-size: 0.8rem;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="container">
       <h1>Music Genre Classifier</h1>
       <form id="uform" enctype="multipart/form-data">
-        <input type="file" name="file" accept="audio/*" required />
+        <div class="file-upload" id="file-upload">
+          <input type="file" name="file" accept="audio/*" required />
+          <div class="file-upload-label">
+            Drag & Drop Audio File or Click to Browse
+          </div>
+        </div>
         <button type="submit" id="submit-btn">Predict Genre</button>
       </form>
       <div id="loading">
@@ -150,6 +347,52 @@
       const submitBtn = document.getElementById("submit-btn");
       const loading = document.getElementById("loading");
       const resultDiv = document.getElementById("result");
+      const fileUpload = document.getElementById("file-upload");
+      const fileInput = fileUpload.querySelector('input[type="file"]');
+
+      // Drag and drop functionality
+      ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+        fileUpload.addEventListener(eventName, preventDefaults, false);
+      });
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      ["dragenter", "dragover"].forEach((eventName) => {
+        fileUpload.addEventListener(eventName, highlight, false);
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        fileUpload.addEventListener(eventName, unhighlight, false);
+      });
+
+      function highlight(e) {
+        fileUpload.classList.add("dragover");
+      }
+
+      function unhighlight(e) {
+        fileUpload.classList.remove("dragover");
+      }
+
+      fileUpload.addEventListener("drop", handleDrop, false);
+
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        fileInput.files = files;
+        updateFileLabel();
+      }
+
+      fileInput.addEventListener("change", updateFileLabel);
+
+      function updateFileLabel() {
+        const fileName =
+          fileInput.files[0]?.name ||
+          "Drag & Drop Audio File or Click to Browse";
+        fileUpload.querySelector(".file-upload-label").textContent = fileName;
+      }
 
       f.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -182,7 +425,7 @@
           data.probs.forEach((prob, idx) => {
             const percentage = (prob * 100).toFixed(1);
             const genreName = genres[idx] || `Genre ${idx + 1}`;
-            html += `<div class="prob-item">${genreName}: ${percentage}%<div class="prob-bar"><div class="prob-fill" style="width: ${percentage}%"></div></div></div>`;
+            html += `<div class="prob-item"><div class="prob-label">${genreName}</div><div class="prob-bar"><div class="prob-fill" style="width: ${percentage}%"></div></div><div class="prob-value">${percentage}%</div></div>`;
           });
           html += "</div>";
         }
