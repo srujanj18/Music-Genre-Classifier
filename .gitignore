@@ -1,7 +1,31 @@
-__pycache__/
+# Virtual environment
 venv/
+env/
+ENV/
 
-best_model.pth
+# Python cache
+__pycache__/
 *.pyc
-*.npy
-*.zip
+*.pyo
+*.pyd
+.Python
+
+# Model files (if large, don't commit)
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Data (if not to commit)
+
+
+# Temporary files
+*.tmp
+*.swp
